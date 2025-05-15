@@ -33,10 +33,10 @@ FROM gcr.io/oss-fuzz-base/base-builder
 RUN apt-get update && \
     apt-get install -y make autoconf automake libtool zlib1g-dev
 
-RUN git clone https://github.com/hamzaremmal/fuzz-libpng -b part4/zlib $SRC/zlib
+RUN git clone --depth=1 https://github.com/hamzaremmal/fuzz-libpng -b part4/zlib $SRC/zlib
 WORKDIR $SRC/zlib
 
-RUN git clone https://github.com/hamzaremmal/fuzz-libpng -b part4/libpng $SRC/libpng
+RUN git clone --depth=1 https://github.com/hamzaremmal/fuzz-libpng -b part4/libpng $SRC/libpng
 WORKDIR $SRC/libpng
 
 RUN cp contrib/oss-fuzz/build.sh $SRC

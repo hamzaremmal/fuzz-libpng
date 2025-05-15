@@ -42,9 +42,7 @@ cd oss-fuzz
 # build the image for libpng
 # NOTE: this builds for the host architecture anyways
 echo "Building images for project: $PROJECT"
-python3 infra/helper.py build_image \
-    --no-pull \
-    "$PROJECT"
+python3 infra/helper.py build_image "$PROJECT"
 
 # build the fuzzers for libpng
 echo "Building fuzzers for project: $PROJECT"

@@ -28,11 +28,12 @@ export PROJECT=libpng_cs412
 export CORPUS="$WORKDIR/build/out/corpus"
 export HARNESS=libpng_read_fuzzer
 export REPOSITORY=https://github.com/hamzaremmal/fuzz-libpng.git
-export LIBPNG_REPO=https://github.com/mprTest1/libpng_cs412.git
+# export LIBPNG_REPO=https://github.com/mprTest1/libpng_cs412.git
+export LIBPNG_REPO="$REPOSITORY"
 export DURATION=14400  # 4 hours in seconds (4 * 60 * 60)
 export ARCHITECTURE=x86_64
 export LANGUAGE="c++"
-export IMPROVE=improve2
+export IMPROVE=improve2/libpng
 
 PROJECT_YAML=$(cat <<EOM
 homepage: "http://www.libpng.org/pub/png/libpng.html"
@@ -82,7 +83,7 @@ RUN apt-get update && \
     apt-get install -y make autoconf automake libtool zlib1g-dev
 
 RUN git clone --depth 1 https://github.com/hamzaremmal/fuzz-libpng.git -b zlib zlib
-RUN git clone --depth 1 --single-branch --branch $IMPROVE $LIBPNG_REPO libpng_cs412
+RUN git clone --depth 1 --single-branch -b $IMPROVE $LIBPNG_REPO libpng_cs412
 RUN cp libpng_cs412/contrib/oss-fuzz/build.sh \$SRC
 RUN cp libpng_cs412/contrib/oss-fuzz/png_generator1.py libpng_cs412/
 WORKDIR libpng_cs412

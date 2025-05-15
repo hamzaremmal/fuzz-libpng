@@ -172,35 +172,19 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     return 0;
   }
 
-  // This is going to be too slow.
-  if (width && height > 100000000 / width) {
-    PNG_CLEANUP
-    return 0;
-  }
+  // Because of the potential transformations that could be performed
+  // due to our modification to the harness, it becomes necessary for us
+  // to additionally limit #rows in the input image (i.e. #malloc) to 
+  // ensure the stability of the fuzzing environment.
+  // Size check requirements from libpng-proto:
+  // https://github.com/google/oss-fuzz/blob/c8a9d0f7b453102115883f3f4f4473a11a5c6284/projects/libpng-proto/libpng_transforms_fuzzer.cc#L73
+  const size_t kMaxImageSize = 1 << 20;
+  const size_t kMaxHeight = 1 << 10;
+  if ((uint64_t)width * height > kMaxImageSize) return 0;
+  if (height > kMaxHeight) return 0;
 
-  // Set several transforms that browsers typically use:
-  png_set_gray_to_rgb(png_handler.png_ptr);
-  png_set_expand(png_handler.png_ptr);
-  png_set_packing(png_handler.png_ptr);
-  png_set_scale_16(png_handler.png_ptr);
-  png_set_tRNS_to_alpha(png_handler.png_ptr);
-
-  int passes = png_set_interlace_handling(png_handler.png_ptr);
-
-  png_read_update_info(png_handler.png_ptr, png_handler.info_ptr);
-
-  png_handler.row_ptr = png_malloc(
-      png_handler.png_ptr, png_get_rowbytes(png_handler.png_ptr,
-                                            png_handler.info_ptr));
-
-  for (int pass = 0; pass < passes; ++pass) {
-    for (png_uint_32 y = 0; y < height; ++y) {
-      png_read_row(png_handler.png_ptr,
-                   static_cast<png_bytep>(png_handler.row_ptr), nullptr);
-    }
-  }
-
-  png_read_end(png_handler.png_ptr, png_handler.end_info_ptr);
+  int transforms_value = size >= 24 ? (*(int*)&data[size-16]) : ~0;
+  png_read_png(png_handler.png_ptr, png_handler.info_ptr, transforms_value, NULL);
 
   PNG_CLEANUP
 
